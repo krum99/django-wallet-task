@@ -11,7 +11,7 @@ from django.contrib.auth.decorators import login_required
 def home_view(request):
     balance = None
     if request.user.is_authenticated:
-        balance_obj = UserBalance.objects.get_or_create(user=request.user)
+        balance_obj, created = UserBalance.objects.get_or_create(user=request.user)
         balance = balance_obj.balance
     
     return render(request, 'accounts/home.html', {'balance': balance})
@@ -49,11 +49,7 @@ def add_money_view(request):
             balance_obj, created = UserBalance.objects.get_or_create(user=request.user)
             balance_obj.balance += amount
             balance_obj.save()
-            return redirect('home')
-    else:
-        form = AddMoneyForm()
-    
-    return render(request, 'accounts/add_money.html', {'form': form})
+    return redirect('home')
 
 @login_required
 def spend_money_view(request):
@@ -62,15 +58,7 @@ def spend_money_view(request):
         if form.is_valid():
             amount = form.cleaned_data['amount']
             balance_obj, created = UserBalance.objects.get_or_create(user=request.user)
-            
             if balance_obj.balance >= amount:
                 balance_obj.balance -= amount
                 balance_obj.save()
-                return redirect('home')
-            else:
-                form.add_error('amount', 'Insufficient funds')
-    
-    else:
-        form = SpendMoneyForm()
-    
-    return render(request, 'accounts/spend_money.html', {'form': form})
+    return redirect('home')
