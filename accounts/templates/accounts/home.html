@@ -8,6 +8,28 @@
 
     {% if user.is_authenticated %}
     <p>Hello, {{ user.username }}!</p>
+
+    {% if balance is not None %}
+    <h3>Your balance: ${{ balance }}</h3>
+    {% endif %}
+
+    <div>
+      <h4>Add Money:</h4>
+      <form method="post" action="{% url 'add_money' %}">
+        {% csrf_token %}
+        <input type="number" name="amount" step="0.01" min="0.01" required />
+        <button type="submit">Add</button>
+      </form>
+
+      <h4>Spend Money:</h4>
+      <form method="post" action="{% url 'spend_money' %}">
+        {% csrf_token %}
+        <input type="number" name="amount" step="0.01" min="0.01" required />
+        <button type="submit">Spend</button>
+      </form>
+    </div>
+
+    <br />
     <form method="post" action="{% url 'logout' %}">
       {% csrf_token %}
       <button type="submit">Logout</button>

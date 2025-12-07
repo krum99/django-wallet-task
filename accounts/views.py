@@ -1,12 +1,20 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
-from .forms import RegisterForm
+
+from accounts.models import UserBalance
+from .forms import RegisterForm, AddMoneyForm, SpendMoneyForm
 
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.decorators import login_required
 
 def home_view(request):
-    return render(request, 'accounts/home.html')
+    balance = None
+    if request.user.is_authenticated:
+        balance_obj = UserBalance.objects.get_or_create(user=request.user)
+        balance = balance_obj.balance
+    
+    return render(request, 'accounts/home.html', {'balance': balance})
 
 def login_view(request):
     if request.method == 'POST':
@@ -31,3 +39,38 @@ def register_view(request):
         form = RegisterForm()
     
     return render(request, 'accounts/register.html', {'form': form})
+
+@login_required
+def add_money_view(request):
+    if request.method == 'POST':
+        form = AddMoneyForm(request.POST)
+        if form.is_valid():
+            amount = form.cleaned_data['amount']
+            balance_obj, created = UserBalance.objects.get_or_create(user=request.user)
+            balance_obj.balance += amount
+            balance_obj.save()
+            return redirect('home')
+    else:
+        form = AddMoneyForm()
+    
+    return render(request, 'accounts/add_money.html', {'form': form})
+
+@login_required
+def spend_money_view(request):
+    if request.method == 'POST':
+        form = SpendMoneyForm(request.POST)
+        if form.is_valid():
+            amount = form.cleaned_data['amount']
+            balance_obj, created = UserBalance.objects.get_or_create(user=request.user)
+            
+            if balance_obj.balance >= amount:
+                balance_obj.balance -= amount
+                balance_obj.save()
+                return redirect('home')
+            else:
+                form.add_error('amount', 'Insufficient funds')
+    
+    else:
+        form = SpendMoneyForm()
+    
+    return render(request, 'accounts/spend_money.html', {'form': form})

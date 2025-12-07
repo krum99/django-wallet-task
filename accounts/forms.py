@@ -15,3 +15,21 @@ class RegisterForm(UserCreationForm):
         if commit:
             user.save()
         return user
+
+class AddMoneyForm(forms.Form):
+    amount = forms.DecimalField(
+        label='Amount to add',
+        max_digits=10,
+        decimal_places=2,
+        min_value=0.01,
+        widget=forms.NumberInput(attrs={'step': '0.01'})
+    )
+
+class SpendMoneyForm(forms.Form):
+    amount = forms.DecimalField(
+        label='Amount to spend',
+        max_digits=10,
+        decimal_places=2,
+        min_value=0.01,
+        widget=forms.NumberInput(attrs={'step': '0.01'})
+    )
