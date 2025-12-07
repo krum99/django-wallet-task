@@ -51,14 +51,19 @@ def add_money_view(request):
             balance_obj.save()
     return redirect('home')
 
-@login_required
+from django.contrib import messages
 def spend_money_view(request):
     if request.method == 'POST':
         form = SpendMoneyForm(request.POST)
         if form.is_valid():
             amount = form.cleaned_data['amount']
             balance_obj, created = UserBalance.objects.get_or_create(user=request.user)
+            
             if balance_obj.balance >= amount:
                 balance_obj.balance -= amount
                 balance_obj.save()
+                messages.success(request, f'Successfully spent ${amount}')
+            else:
+                messages.error(request, 'Insufficient funds!')
+    
     return redirect('home')
