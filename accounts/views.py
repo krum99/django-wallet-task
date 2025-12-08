@@ -5,9 +5,10 @@ from django.contrib.auth import login
 from accounts.models import Transaction, UserBalance
 from .forms import RegisterForm, AddMoneyForm, SpendMoneyForm
 
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 
 def home_view(request):
     balance = None
@@ -58,7 +59,7 @@ def add_money_view(request):
             balance_obj.save()
     return redirect('home')
 
-from django.contrib import messages
+@login_required
 def spend_money_view(request):
     if request.method == 'POST':
         form = SpendMoneyForm(request.POST)
