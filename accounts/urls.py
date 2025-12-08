@@ -9,4 +9,5 @@ urlpatterns = [
   path('logout/', auth_views.LogoutView.as_view(next_page='home'), name='logout'),
   path('add-money/', views.add_money_view, name='add_money'),
   path('spend-money/', views.spend_money_view, name='spend_money'),
+  path('transactions/', views.user_transactions, name='transactions'),
 ]

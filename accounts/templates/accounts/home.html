@@ -16,6 +16,10 @@
     <div>{% include 'accounts/partials/_messages.html' %}</div>
 
     <br />
+    <p>
+      <a href="{% url 'transactions' %}">View All Transactions</a>
+    </p>
+    <br />
     <form method="post" action="{% url 'logout' %}">
       {% csrf_token %}
       <button type="submit">Logout</button>

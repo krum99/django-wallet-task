@@ -38,5 +38,5 @@ class Transaction(models.Model):
     class Meta:
         ordering = ['-created_at']
     
-    def __str__(self):
-        return f"{self.user.username}: {self.transaction_type} ${self.amount} ({self.created_at.date()})"urn f"{self.user.username}: {sign}{self.amount} ({self.created_at.date()})"
+    # def __str__(self):
+    #     return f"{self.user.username}: {self.transaction_type} ${self.amount} ({self.created_at.date()})"urn f"{self.user.username}: {sign}{self.amount} ({self.created_at.date()})"

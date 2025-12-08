@@ -1,7 +1,8 @@
+from django.utils import timezone
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
 
-from accounts.models import UserBalance
+from accounts.models import Transaction, UserBalance
 from .forms import RegisterForm, AddMoneyForm, SpendMoneyForm
 
 from django.contrib.auth import login, authenticate
@@ -47,6 +48,12 @@ def add_money_view(request):
         if form.is_valid():
             amount = form.cleaned_data['amount']
             balance_obj, created = UserBalance.objects.get_or_create(user=request.user)
+            Transaction.objects.create(
+                user=request.user,
+                transaction_type='DEPOSIT',
+                amount=amount,
+                created_at=timezone.now()
+            )
             balance_obj.balance += amount
             balance_obj.save()
     return redirect('home')
@@ -61,9 +68,21 @@ def spend_money_view(request):
             
             if balance_obj.balance >= amount:
                 balance_obj.balance -= amount
+                Transaction.objects.create(
+                    user=request.user,
+                    transaction_type='WITHDRAWAL',
+                    amount=amount,
+                    created_at=timezone.now()
+                )
                 balance_obj.save()
                 messages.success(request, f'Successfully spent ${amount}')
             else:
                 messages.error(request, 'Insufficient funds!')
     
     return redirect('home')
+
+
+@login_required
+def user_transactions(request):
+    transactions = Transaction.objects.filter(user=request.user).order_by('-created_at')
+    return render(request, 'accounts/transactions.html', {'transactions': transactions})
