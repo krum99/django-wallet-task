@@ -2,6 +2,7 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 class UserBalance(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -21,3 +22,21 @@ def create_user_balance(sender, instance, created, **kwargs):
 def save_user_balance(sender, instance, **kwargs):
     if hasattr(instance, 'userbalance'):
         instance.userbalance.save()
+
+
+class Transaction(models.Model):
+    TYPE_CHOICES = [
+        ('DEPOSIT', 'Deposit'),
+        ('WITHDRAWAL', 'Withdrawal'),
+    ]
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    transaction_type = models.CharField(max_length=10, choices=TYPE_CHOICES)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    created_at = models.DateTimeField(default=timezone.now)
+    
+    class Meta:
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.user.username}: {self.transaction_type} ${self.amount} ({self.created_at.date()})"urn f"{self.user.username}: {sign}{self.amount} ({self.created_at.date()})"
